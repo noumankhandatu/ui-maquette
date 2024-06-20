@@ -20,7 +20,7 @@ const { Meta } = Card;
 const { Text } = Typography;
 const { Content } = Layout;
 
-import { apiGet } from "../utils/axios.js";
+import { apiGet, apiPost } from "../utils/axios.js";
 
 const CardView = () => {
   const [spinner, setSpinner] = useState(true);
@@ -152,6 +152,53 @@ const CardView = () => {
   const toggleModal = () => {
     setModalVisible(!modalVisible);
   };
+
+  // states
+  const [firstName, setFirstName] = useState("");
+  const [surname, setSurname] = useState("");
+  const [phoneNumber, setPhone] = useState("");
+  const [emailAddress, setEmail] = useState("");
+  const [business, setBussiness] = useState("");
+  const handleFormSubmit = async (formValues) => {
+    const payload = {
+      firstName,
+      surname,
+      phoneNumber,
+      emailAddress,
+      enterprise: business,
+    };
+
+    if (!firstName || !surname || !phoneNumber || !emailAddress || !business)
+      return Swal.fire({
+        icon: "Feild Error",
+        title: "Feild Error",
+        text: "Enter all feilds",
+      });
+
+    try {
+      const response = await apiPost("/submit-contact", payload);
+      if (response.success) {
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Contact information submitted successfully!",
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: response.error,
+        });
+      }
+    } catch (error) {
+      console.log(error, "error");
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "An error occurred while submitting the contact information.",
+      });
+    }
+  };
   const modalContent = (
     <>
       <Modal style={{ textAlign: "center" }} visible={modalVisible} onCancel={toggleModal} footer={null}>
@@ -160,7 +207,6 @@ const CardView = () => {
         <Form
           layout="vertical"
           onFinish={(values) => {
-            console.log("Form values:", values);
             // Handle form submission logic here
             toggleModal(); // Close modal after form submission
           }}
@@ -168,8 +214,22 @@ const CardView = () => {
           <span style={{ fontWeight: "bold", fontSize: 18 }}>{values?.name}</span>
 
           <div style={{ height: 30 }} />
-          <span style={{ fontWeight: "bold", fontSize: 18 }}>Nom et prénom</span>
+          <span style={{ fontWeight: "bold", fontSize: 18 }}>Prénom</span>
           <Input
+            onChange={(e) => setFirstName(e.target.value)}
+            style={{
+              border: "none",
+              borderBottom: "2px solid green",
+              outline: "none",
+              boxShadow: "none",
+              borderRadius: 0,
+            }}
+          />
+
+          <div style={{ height: 30 }} />
+          <span style={{ fontWeight: "bold", fontSize: 18 }}>Nom</span>
+          <Input
+            onChange={(e) => setSurname(e.target.value)}
             style={{
               border: "none",
               borderBottom: "2px solid green",
@@ -181,6 +241,7 @@ const CardView = () => {
           <div style={{ height: 30 }} />
           <span style={{ fontWeight: "bold", fontSize: 18 }}>Téléphone</span>
           <Input
+            onChange={(e) => setPhone(e.target.value)}
             style={{
               border: "none",
               borderBottom: "2px solid green",
@@ -193,6 +254,7 @@ const CardView = () => {
           <div style={{ height: 30 }} />
           <span style={{ fontWeight: "bold", fontSize: 18 }}>Email</span>
           <Input
+            onChange={(e) => setEmail(e.target.value)}
             style={{
               border: "none",
               borderBottom: "2px solid green",
@@ -205,6 +267,7 @@ const CardView = () => {
           <div style={{ height: 30 }} />
           <span style={{ fontWeight: "bold", fontSize: 18 }}>Entreprise</span>
           <Input
+            onChange={(e) => setBussiness(e.target.value)}
             style={{
               border: "none",
               borderBottom: "2px solid green",
@@ -220,7 +283,12 @@ const CardView = () => {
           </span>
 
           <Form.Item style={{ display: "flex", justifyContent: "flex-end" }}>
-            <Button style={{ borderRadius: 1000, letterSpacing: 3, marginTop: 10 }} type="primary" htmlType="submit">
+            <Button
+              onClick={handleFormSubmit}
+              style={{ borderRadius: 1000, letterSpacing: 3, marginTop: 10 }}
+              type="primary"
+              htmlType="submit"
+            >
               Enyoyer
             </Button>
           </Form.Item>
@@ -229,6 +297,7 @@ const CardView = () => {
       </Modal>
     </>
   );
+
   return (
     <>
       {/* modal work */}
