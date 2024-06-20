@@ -3,7 +3,7 @@ import VCard from "vcard-creator";
 import QRCode from "react-qr-code";
 import Swal from "sweetalert2";
 
-import { Card, Image, Typography, Space, Button, Tooltip, List, Row, Col, Layout, Skeleton } from "antd";
+import { Card, Image, Typography, Space, Button, Tooltip, List, Row, Col, Layout, Skeleton, Checkbox } from "antd";
 
 import BgProfile from "../assets/images/bg-profile.jpg";
 import ProfilAvatar from "../assets/images/profile.png";
@@ -153,56 +153,81 @@ const CardView = () => {
     setModalVisible(!modalVisible);
   };
   const modalContent = (
-    <Modal title="Échanger de contact" visible={modalVisible} onCancel={toggleModal} footer={null}>
-      <Form
-        layout="vertical"
-        onFinish={(values) => {
-          console.log("Form values:", values);
-          // Handle form submission logic here
-          toggleModal(); // Close modal after form submission
-        }}
-      >
-        <Form.Item
-          name="firstName"
-          label="Prénom"
-          rules={[{ required: true, message: "Veuillez saisir votre prénom" }]}
+    <>
+      <Modal style={{ textAlign: "center" }} visible={modalVisible} onCancel={toggleModal} footer={null}>
+        <img src="/Icon échange.png" style={{ height: 100 }} alt="" />
+
+        <Form
+          layout="vertical"
+          onFinish={(values) => {
+            console.log("Form values:", values);
+            // Handle form submission logic here
+            toggleModal(); // Close modal after form submission
+          }}
         >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          name="lastName"
-          label="Nom de famille"
-          rules={[{ required: true, message: "Veuillez saisir votre nom de famille" }]}
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          name="telephone"
-          label="Numéro de téléphone"
-          rules={[{ required: true, message: "Veuillez saisir votre numéro de téléphone" }]}
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          name="email"
-          label="Adresse e-mail"
-          rules={[
-            { required: true, message: "Veuillez saisir votre adresse e-mail" },
-            { type: "email", message: "Adresse e-mail invalide" },
-          ]}
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item name="company" label="Entreprise">
-          <Input />
-        </Form.Item>
-        <Form.Item>
-          <Button type="primary" htmlType="submit">
-            Soumettre
-          </Button>
-        </Form.Item>
-      </Form>
-    </Modal>
+          <span style={{ fontWeight: "bold", fontSize: 18 }}>J’envoi mes coordonnées à "name"</span>
+
+          <div style={{ height: 30 }} />
+          <span style={{ fontWeight: "bold", fontSize: 18 }}>Nom et prénom</span>
+          <Input
+            style={{
+              border: "none",
+              borderBottom: "2px solid green",
+              outline: "none",
+              boxShadow: "none",
+              borderRadius: 0,
+            }}
+          />
+          <div style={{ height: 30 }} />
+          <span style={{ fontWeight: "bold", fontSize: 18 }}>Téléphone</span>
+          <Input
+            style={{
+              border: "none",
+              borderBottom: "2px solid green",
+              outline: "none",
+              boxShadow: "none",
+              borderRadius: 0,
+            }}
+          />
+
+          <div style={{ height: 30 }} />
+          <span style={{ fontWeight: "bold", fontSize: 18 }}>Email</span>
+          <Input
+            style={{
+              border: "none",
+              borderBottom: "2px solid green",
+              outline: "none",
+              boxShadow: "none",
+              borderRadius: 0,
+            }}
+          />
+
+          <div style={{ height: 30 }} />
+          <span style={{ fontWeight: "bold", fontSize: 18 }}>Entreprise</span>
+          <Input
+            style={{
+              border: "none",
+              borderBottom: "2px solid green",
+              outline: "none",
+              boxShadow: "none",
+              borderRadius: 0,
+            }}
+          />
+          <Checkbox />
+          <span style={{ fontWeight: "bold", fontSize: 10, marginLeft: 5 }}>
+            Je reconnais transmettre mes informations dans le cadre d’un échange de contact. Consultez notre politique
+            de confidentialité. Link to the WE FAST privacy policy
+          </span>
+
+          <Form.Item style={{ display: "flex", justifyContent: "flex-end" }}>
+            <Button style={{ borderRadius: 1000, letterSpacing: 3, marginTop: 10 }} type="primary" htmlType="submit">
+              Enyoyer
+            </Button>
+          </Form.Item>
+          <img src="/Logo WE FAST sans fond.png" alt="" style={{ height: 70 }} />
+        </Form>
+      </Modal>
+    </>
   );
   return (
     <>

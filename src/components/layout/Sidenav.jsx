@@ -28,7 +28,7 @@ function Sidenav({ color }) {
   return (
     <>
       <div className="brand" style={{ textAlign: "center" }}>
-        <img src={"/logo.jpeg"} alt="" />
+        <img style={{ height: 70 }} src={"/Logo WE FAST sans fond.png"} alt="" />
         {/* <span style={{ color: "#008037", fontWeight: "bold" }}>WeFast</span> */}
       </div>
       <hr />
