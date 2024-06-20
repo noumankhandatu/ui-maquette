@@ -165,7 +165,7 @@ const CardView = () => {
             toggleModal(); // Close modal after form submission
           }}
         >
-          <span style={{ fontWeight: "bold", fontSize: 18 }}>J’envoi mes coordonnées à "name"</span>
+          <span style={{ fontWeight: "bold", fontSize: 18 }}>{values?.name}</span>
 
           <div style={{ height: 30 }} />
           <span style={{ fontWeight: "bold", fontSize: 18 }}>Nom et prénom</span>
