@@ -119,20 +119,7 @@ const MyContact = () => {
 
   const fetchContacts = async () => {
     try {
-      const headers = {
-        "Content-Type": "application/json",
-        "x-access-token": localStorage.getItem("token"),
-      };
-
-      const apiUrl = "http://localhost:3001/my-contacts"; // Corrected API URL
-
-      const res = await axios.get(apiUrl, {
-        headers,
-      });
-
-      console.log("Contacts fetched successfully:", res.data);
-      setContacts(res.data.contacts); // Assuming your API response has a structure like { success: true, contacts: [...] }
-      setLoading(false);
+      const response = await apiGet("/my-contacts");
     } catch (error) {
       console.error("Error fetching contacts:", error);
       setLoading(false);
