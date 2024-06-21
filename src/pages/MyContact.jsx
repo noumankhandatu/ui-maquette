@@ -7,6 +7,7 @@ import {
   ExportOutlined,
   HomeOutlined,
   PlusOutlined,
+  EditFilled,
 } from "@ant-design/icons";
 import {
   Table,
@@ -28,11 +29,11 @@ import QRCode from "react-qr-code";
 import { apiGet } from "../utils/axios"; // Adjusted to import apiGet only
 import moment from "moment";
 import "moment/locale/fr"; // Import French locale
-moment.locale("fr");
-const { Title, Text } = Typography;
-const { Header, Content } = Layout;
 import VCard from "vcard-creator";
 import { Link } from "react-router-dom";
+
+const { Title, Text } = Typography;
+const { Header, Content } = Layout;
 
 const MyContact = () => {
   const [contacts, setContacts] = useState([]);
@@ -42,7 +43,6 @@ const MyContact = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [currentContactId, setCurrentContactId] = useState(null);
   const [note, setNote] = useState("");
-  const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
     fetchContacts();
@@ -212,22 +212,28 @@ const MyContact = () => {
       title: "Notes",
       dataIndex: "notes",
       key: "notes",
-      render: (text) => <Text>{text}</Text>,
+      render: (text, record) => (
+        <Space size="middle">
+          <Text style={{ display: "flex", alignItems: "center" }}>
+            <span style={{ width: 80, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {text}
+            </span>
+            {text ? (
+              <EditFilled style={{ fontSize: 20, marginLeft: 10 }} onClick={() => handleAddNote(record.key)} />
+            ) : (
+              <PlusOutlined style={{ fontSize: 20, marginLeft: 10 }} onClick={() => handleAddNote(record.key)} />
+            )}
+          </Text>
+        </Space>
+      ),
     },
     {
-      title: "Ajouter",
+      title: "Actions",
       key: "action",
       render: (_, record) => (
         <Space size="middle">
           <Tooltip title="Download VCF">
-            <DownloadOutlined
-              style={{ fontSize: 20 }}
-              onClick={() => handleDownloadVCF(record)}
-              value={record.emailAddress}
-            />
-          </Tooltip>
-          <Tooltip title="Add Note">
-            <PlusOutlined style={{ fontSize: 20 }} onClick={() => handleAddNote(record.key)} />
+            <DownloadOutlined style={{ fontSize: 20 }} onClick={() => handleDownloadVCF(record)} />
           </Tooltip>
           <Tooltip title="QR Code">
             <QRCode style={{ fontSize: 20 }} value={record.emailAddress} size={30} />
