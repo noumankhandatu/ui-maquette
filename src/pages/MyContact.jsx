@@ -1,52 +1,28 @@
 import React, { useEffect, useState } from "react";
-import { SearchOutlined, DownloadOutlined, PhoneOutlined, MailOutlined } from "@ant-design/icons";
+import { SearchOutlined, DownloadOutlined, PhoneOutlined, MailOutlined, ExportOutlined } from "@ant-design/icons";
 import { Table, Input, Button, Typography, Checkbox, Space, Layout, Tooltip, Row, Col } from "antd";
 import QRCode from "react-qr-code";
-import axios from "axios";
-import { apiGet, apiPost } from "../utils/axios";
+import { apiGet } from "../utils/axios"; // Adjusted to import apiGet only
 
 const { Title, Text } = Typography;
 const { Header, Content } = Layout;
 
-const dataSource = [
-  // Example data
-  {
-    key: "1",
-    fullName: "John Doe",
-    company: "Example Inc.",
-    phone: "123-456-7890",
-    email: "john@example.com",
-    date: "01/01/2023",
-    notes: "Met at conference",
-  },
-  {
-    key: "2",
-    fullName: "Jane Smith",
-    company: "Another Inc.",
-    phone: "987-654-3210",
-    email: "jane@example.com",
-    date: "02/02/2023",
-    notes: "Met at meetup",
-  },
-  // Add more data as needed
-];
-
 const columns = [
   {
     title: "Contact",
-    dataIndex: "fullName",
-    key: "fullName",
+    dataIndex: "firstName",
+    key: "firstName",
     render: (text) => <Text>{text}</Text>,
   },
   {
     title: "Entreprise",
-    dataIndex: "company",
-    key: "company",
+    dataIndex: "enterprise",
+    key: "enterprise",
   },
   {
     title: "Téléphone",
-    dataIndex: "phone",
-    key: "phone",
+    dataIndex: "phoneNumber",
+    key: "phoneNumber",
     render: (text) => (
       <Button type="link" icon={<PhoneOutlined />} onClick={() => (window.location.href = `tel:${text}`)}>
         {text}
@@ -55,8 +31,8 @@ const columns = [
   },
   {
     title: "Email",
-    dataIndex: "email",
-    key: "email",
+    dataIndex: "emailAddress",
+    key: "emailAddress",
     render: (text) => (
       <Button type="link" icon={<MailOutlined />} onClick={() => (window.location.href = `mailto:${text}`)}>
         {text}
@@ -79,24 +55,47 @@ const columns = [
     key: "action",
     render: (_, record) => (
       <Space size="middle">
-        <Tooltip title="Download VCF">
-          <Button icon={<DownloadOutlined />} onClick={() => handleDownload(record)} />
-        </Tooltip>
         <Tooltip title="QR Code">
-          <QRCode value={record.email} size={32} />
+          <QRCode value={record.emailAddress} size={32} />
         </Tooltip>
       </Space>
     ),
   },
 ];
 
-const handleDownload = (record) => {
-  // Create and download VCF file
-};
-
 const MyContact = () => {
+  const [contacts, setContacts] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [searchText, setSearchText] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchContacts();
+  }, []);
+
+  const fetchContacts = async () => {
+    try {
+      const response = await apiGet("/auth/my-contacts");
+      if (response.success && response.contacts) {
+        const formattedContacts = response.contacts.map((contact) => ({
+          key: contact.id, // Ensure each row has a unique key
+          firstName: contact.firstName,
+          phoneNumber: contact.phoneNumber,
+          emailAddress: contact.emailAddress,
+          enterprise: contact.enterprise,
+          date: contact.date, // Assuming you have a date field
+          notes: contact.notes, // Assuming you have a notes field
+        }));
+        setContacts(formattedContacts);
+      } else {
+        console.error("Failed to fetch contacts");
+      }
+    } catch (error) {
+      console.error("Error fetching contacts:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const onSelectChange = (newSelectedRowKeys) => {
     setSelectedRowKeys(newSelectedRowKeys);
@@ -107,23 +106,35 @@ const MyContact = () => {
     onChange: onSelectChange,
   };
 
-  const filteredData = dataSource.filter(
+  const filteredData = contacts.filter(
     (item) =>
-      item.fullName.toLowerCase().includes(searchText.toLowerCase()) ||
-      item.company.toLowerCase().includes(searchText.toLowerCase()),
+      item.firstName.toLowerCase().includes(searchText.toLowerCase()) ||
+      item.enterprise.toLowerCase().includes(searchText.toLowerCase()),
   );
 
-  useEffect(() => {
-    fetchContacts();
-  }, []);
+  const handleExportAll = () => {
+    // Export all filtered data as CSV
+    exportToCSV(filteredData);
+  };
 
-  const fetchContacts = async () => {
-    try {
-      const response = await apiGet("/auth/my-contacts");
-    } catch (error) {
-      console.error("Error fetching contacts:", error);
-      setLoading(false);
-    }
+  const handleExportSelected = () => {
+    // Export only selected rows as CSV
+    const selectedData = filteredData.filter((item) => selectedRowKeys.includes(item.key));
+    exportToCSV(selectedData);
+  };
+
+  const exportToCSV = (data) => {
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      Object.keys(data[0]).join(",") +
+      "\n" +
+      data.map((row) => Object.values(row).join(",")).join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "contacts.csv");
+    document.body.appendChild(link);
+    link.click();
   };
 
   return (
@@ -145,20 +156,39 @@ const MyContact = () => {
             />
           </Col>
           <Col>
-            <Text>{filteredData.length} contacts Number of contacts in the database</Text>
+            <Text>{filteredData.length} contacts found in the database</Text>
           </Col>
         </Row>
         <Row justify="space-between" align="middle" style={{ margin: "16px 0" }}>
           <Col>
-            <Checkbox onChange={() => {}}>Select all</Checkbox> Ability to select all or only one contacts and export
-            them in .csv format
+            <Checkbox
+              onChange={(e) => {
+                if (e.target.checked) {
+                  setSelectedRowKeys(filteredData.map((item) => item.key));
+                } else {
+                  setSelectedRowKeys([]);
+                }
+              }}
+              checked={selectedRowKeys.length === filteredData.length}
+            >
+              Select all
+            </Checkbox>
+          </Col>
+          <Col>
+            <Button icon={<ExportOutlined />} onClick={handleExportAll}>
+              Export All
+            </Button>
+            <Button icon={<ExportOutlined />} onClick={handleExportSelected}>
+              Export Selected
+            </Button>
           </Col>
         </Row>
         <Table
           rowSelection={rowSelection}
           columns={columns}
           dataSource={filteredData}
-          pagination={false}
+          pagination={{ pageSize: 10 }}
+          loading={loading}
           scroll={{ x: "max-content" }}
         />
       </Content>
