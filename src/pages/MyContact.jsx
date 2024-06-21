@@ -140,7 +140,7 @@ const MyContact = () => {
   return (
     <Layout>
       <Header style={{ background: "#FAFAFA", paddingTop: 20, height: 90 }}>
-        <Title level={2} style={{ color: "black", textAlign: "center" }}>
+        <Title level={2} style={{ color: "#008037", textAlign: "center" }}>
           My contact page
         </Title>
       </Header>

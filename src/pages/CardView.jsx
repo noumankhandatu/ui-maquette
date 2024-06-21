@@ -21,6 +21,7 @@ const { Text } = Typography;
 const { Content } = Layout;
 
 import { apiGet, apiPost } from "../utils/axios.js";
+import { Link } from "react-router-dom";
 
 const CardView = () => {
   const [spinner, setSpinner] = useState(true);
@@ -58,14 +59,14 @@ const CardView = () => {
   const getUserId = () => {
     let urlString = window.location.href;
 
-// Use URLSearchParams to parse the query string
-let urlParams = new URLSearchParams(urlString);
+    // Use URLSearchParams to parse the query string
+    let urlParams = new URLSearchParams(urlString);
 
-// Iterate over all query parameters
-urlParams.forEach((value, key) => {
-  console.log(`${key} = ${value}`);
-});
-  }
+    // Iterate over all query parameters
+    urlParams.forEach((value, key) => {
+      console.log(`${key} = ${value}`);
+    });
+  };
 
   const handleDownloadVCF = () => {
     const myVCard = createVCard(values);
@@ -172,12 +173,14 @@ urlParams.forEach((value, key) => {
   const [phoneNumber, setPhone] = useState("");
   const [emailAddress, setEmail] = useState("");
   const [business, setBussiness] = useState("");
+  const [checkboxChecked, setCheckboxChecked] = useState(false);
+
   const handleFormSubmit = async (formValues) => {
     const payload = {
-      name:firstName,
-      userID:window.location.search.substr(1),
-      phone:phoneNumber,
-      email:emailAddress,
+      name: firstName,
+      userID: window.location.search.substr(1),
+      phone: phoneNumber,
+      email: emailAddress,
       enterprise: business,
     };
 
@@ -187,9 +190,15 @@ urlParams.forEach((value, key) => {
         title: "Feild Error",
         text: "Enter all feilds",
       });
-
+    if (!checkboxChecked) {
+      return Swal.fire({
+        icon: "warning",
+        title: "Checkbox Error",
+        text: "You must acknowledge before submitting.",
+      });
+    }
     try {
-     console.log('thisi is', window.location.search.substr(1)); 
+      console.log("thisi is", window.location.search.substr(1));
       const response = await apiPost("/submit-contact", payload);
       if (response.success) {
         Swal.fire({
@@ -290,11 +299,16 @@ urlParams.forEach((value, key) => {
               borderRadius: 0,
             }}
           />
-          <Checkbox />
-          <span style={{ fontWeight: "bold", fontSize: 10, marginLeft: 5 }}>
+          <Checkbox onChange={(e) => setCheckboxChecked(e.target.checked)} style={{ marginTop: 10 }} />
+          <Link
+            to={"https://wefast.fr/politique-de-protection-des-donnees/"}
+            style={{ fontWeight: "bold", fontSize: 10, marginLeft: 5 }}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             Je reconnais transmettre mes informations dans le cadre d’un échange de contact. Consultez notre politique
             de confidentialité. Link to the WE FAST privacy policy
-          </span>
+          </Link>
 
           <Form.Item style={{ display: "flex", justifyContent: "flex-end" }}>
             <Button
