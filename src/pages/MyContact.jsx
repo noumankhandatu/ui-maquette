@@ -3,7 +3,9 @@ import { SearchOutlined, DownloadOutlined, PhoneOutlined, MailOutlined, ExportOu
 import { Table, Input, Button, Typography, Checkbox, Space, Layout, Tooltip, Row, Col } from "antd";
 import QRCode from "react-qr-code";
 import { apiGet } from "../utils/axios"; // Adjusted to import apiGet only
-
+import moment from 'moment';
+import 'moment/locale/fr'; // Import French locale
+moment.locale('fr');
 const { Title, Text } = Typography;
 const { Header, Content } = Layout;
 
@@ -24,7 +26,7 @@ const columns = [
     dataIndex: "phoneNumber",
     key: "phoneNumber",
     render: (text) => (
-      <Button type="link" icon={<PhoneOutlined />} onClick={() => (window.location.href = `tel:${text}`)}>
+      <Button type="link" style={{color:"#008037"}}  icon={<PhoneOutlined />} onClick={() => (window.location.href = `tel:${text}`)}>
         {text}
       </Button>
     ),
@@ -34,33 +36,33 @@ const columns = [
     dataIndex: "emailAddress",
     key: "emailAddress",
     render: (text) => (
-      <Button type="link" icon={<MailOutlined />} onClick={() => (window.location.href = `mailto:${text}`)}>
+      <Button style={{color:"#008037"}} type="link" icon={<MailOutlined />} onClick={() => (window.location.href = `mailto:${text}`)}>
         {text}
       </Button>
     ),
   },
-  // {
-  //   title: "Rencontre",
-  //   dataIndex: "date",
-  //   key: "date",
-  // },
-  // {
-  //   title: "Notes",
-  //   dataIndex: "notes",
-  //   key: "notes",
-  //   render: (text) => <Text>{text}</Text>,
-  // },
-  // {
-  //   title: "Ajouter",
-  //   key: "action",
-  //   render: (_, record) => (
-  //     <Space size="middle">
-  //       <Tooltip title="QR Code">
-  //         <QRCode value={record.emailAddress} size={32} />
-  //       </Tooltip>
-  //     </Space>
-  //   ),
-  // },
+  {
+    title: "Rencontre",
+    dataIndex: "date",
+    key: "date",
+  },
+  {
+    title: "Notes",
+    dataIndex: "notes",
+    key: "notes",
+    render: (text) => <Text>{text}</Text>,
+  },
+  {
+    title: "Ajouter",
+    key: "action",
+    render: (_, record) => (
+      <Space size="middle">
+        <Tooltip title="QR Code">
+          <QRCode value={record.emailAddress} size={32} />
+        </Tooltip>
+      </Space>
+    ),
+  },
 ];
 
 const MyContact = () => {
@@ -83,7 +85,7 @@ const MyContact = () => {
           phoneNumber: contact.phoneNumber,
           emailAddress: contact.emailAddress,
           enterprise: contact.enterprise,
-          date: contact.date, // Assuming you have a date field
+          date:  moment(contact.created_at).format('LL'), // Assuming you have a date field
           notes: contact.notes, // Assuming you have a notes field
         }));
         setContacts(formattedContacts);
@@ -141,7 +143,7 @@ const MyContact = () => {
     <Layout>
       <Header style={{ background: "#FAFAFA", paddingTop: 20, height: 90 }}>
         <Title level={2} style={{ color: "#008037", textAlign: "center" }}>
-          My contact page
+        Mes Contacts
         </Title>
       </Header>
       <Content style={{ padding: "24px" }}>
@@ -149,15 +151,15 @@ const MyContact = () => {
           <Col>
             <Input
               suffix={<SearchOutlined style={{ fontSize: 22 }} />}
-              placeholder="Search bar to find a person in your database"
+              placeholder="Search bar to find a person in your database (by surname, first name or company)"
               style={{ width: 400, borderRadius: 100 }}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
             />
           </Col>
-          <Col>
+          {/* <Col>
             <Text>{filteredData.length} contacts found in the database</Text>
-          </Col>
+          </Col> */}
         </Row>
         <Row justify="space-between" align="middle" style={{ margin: "16px 0" }}>
           <Col>
@@ -171,7 +173,7 @@ const MyContact = () => {
               }}
               checked={selectedRowKeys.length === filteredData.length}
             >
-              Select all
+             Tout selectionner
             </Checkbox>
           </Col>
           <Col>
