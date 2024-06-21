@@ -7,6 +7,7 @@ import {
   ExportOutlined,
   HomeOutlined,
   EditOutlined,
+  PlusOutlined,
 } from "@ant-design/icons";
 import { Table, Input, Button, Typography, Checkbox, Space, Layout, Tooltip, Row, Col, Menu } from "antd";
 import QRCode from "react-qr-code";
@@ -15,27 +16,29 @@ import moment from "moment";
 import "moment/locale/fr"; // Import French locale
 moment.locale("fr");
 const { Title, Text } = Typography;
-const { Header, Content, Sider } = Layout;
+const { Header, Content } = Layout;
+import VCard from "vcard-creator";
+import { Link } from "react-router-dom";
 
-const handleDownloadVCard = (record) => {
-  const vCardData = `
-  BEGIN:VCARD
-  VERSION:3.0
-  FN:${record.firstName}
-  TEL:${record.phoneNumber}
-  EMAIL:${record.emailAddress}
-  ORG:${record.enterprise}
-  NOTE:${record.notes}
-  END:VCARD
-  `;
-  const blob = new Blob([vCardData], { type: "text/vcard" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.setAttribute("download", `${record.firstName}.vcf`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+const handleDownloadVCF = (record) => {
+  let [firstname, ...lastname] = record.firstName.split(" ");
+  const myVCard = new VCard();
+  myVCard
+    // add personal data
+    // .addName(values.name)
+    .addName(lastname.toString().replaceAll(",", ""), firstname, "", "", "")
+    // add work data
+    .addCompany(record.enterprise)
+    .addEmail(record.emailAddress)
+    .addPhoneNumber(record.phoneNumber, "PREF;WORK")
+    .addPhoneNumber(record.phoneNumber ?? "", "WORK");
+
+  const element = document.createElement("a");
+  const file = new Blob([myVCard.toString()], { type: "text/plain;charset=utf-8" });
+  element.href = URL.createObjectURL(file);
+  element.download = `${record.firstName}.vcf`;
+  document.body.appendChild(element);
+  element.click();
 };
 
 const columns = [
@@ -96,8 +99,19 @@ const columns = [
     key: "action",
     render: (_, record) => (
       <Space size="middle">
+        {/* <Button type="primary" shape="round" icon={<DownloadOutlined />} size={"small"}></Button> */}
+        <Tooltip title="Download VCF">
+          <DownloadOutlined
+            style={{ fontSize: 20 }}
+            onClick={() => handleDownloadVCF(record)}
+            value={record.emailAddress}
+          />
+        </Tooltip>
+        <Tooltip title="Add Note">
+          <PlusOutlined style={{ fontSize: 20 }} value={record.emailAddress} />
+        </Tooltip>
         <Tooltip title="QR Code">
-          <QRCode value={record.emailAddress} size={32} />
+          <QRCode style={{ fontSize: 20 }} value={record.emailAddress} size={30} />
         </Tooltip>
       </Space>
     ),
@@ -188,9 +202,30 @@ const MyContact = () => {
   return (
     <Layout>
       <Header style={{ background: "#FAFAFA", paddingTop: 20, height: 90 }}>
-        <Title level={2} style={{ color: "#008037", textAlign: "center" }}>
-          Mes Contacts
-        </Title>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <Link
+            to="/"
+            style={{
+              border: "1px solid green",
+              borderRadius: 20,
+              width: 100,
+              textAlign: "center",
+              height: 45,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <HomeOutlined className="text-black" style={{ fontSize: 15, color: "black" }} />
+            <span className="text-black" style={{ marginLeft: 10, color: "black" }}>
+              Home
+            </span>
+          </Link>
+          <Title level={2} style={{ color: "#008037", textAlign: "center" }}>
+            Mes Contacts
+          </Title>
+          <div />
+        </div>
       </Header>
       <Content style={{ padding: "24px" }}>
         <Row justify="space-between" align="middle">
