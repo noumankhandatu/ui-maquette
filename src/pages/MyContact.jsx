@@ -39,28 +39,28 @@ const columns = [
       </Button>
     ),
   },
-  {
-    title: "Rencontre",
-    dataIndex: "date",
-    key: "date",
-  },
-  {
-    title: "Notes",
-    dataIndex: "notes",
-    key: "notes",
-    render: (text) => <Text>{text}</Text>,
-  },
-  {
-    title: "Ajouter",
-    key: "action",
-    render: (_, record) => (
-      <Space size="middle">
-        <Tooltip title="QR Code">
-          <QRCode value={record.emailAddress} size={32} />
-        </Tooltip>
-      </Space>
-    ),
-  },
+  // {
+  //   title: "Rencontre",
+  //   dataIndex: "date",
+  //   key: "date",
+  // },
+  // {
+  //   title: "Notes",
+  //   dataIndex: "notes",
+  //   key: "notes",
+  //   render: (text) => <Text>{text}</Text>,
+  // },
+  // {
+  //   title: "Ajouter",
+  //   key: "action",
+  //   render: (_, record) => (
+  //     <Space size="middle">
+  //       <Tooltip title="QR Code">
+  //         <QRCode value={record.emailAddress} size={32} />
+  //       </Tooltip>
+  //     </Space>
+  //   ),
+  // },
 ];
 
 const MyContact = () => {

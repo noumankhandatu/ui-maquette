@@ -177,14 +177,14 @@ const CardView = () => {
 
   const handleFormSubmit = async (formValues) => {
     const payload = {
-      name: firstName,
+      name: `${firstName} ${surname}`,
       userID: window.location.search.substr(1),
       phone: phoneNumber,
       email: emailAddress,
       enterprise: business,
     };
 
-    if (!firstName || !surname || !phoneNumber || !emailAddress || !business)
+    if (!firstName || !phoneNumber || !emailAddress || !business)
       return Swal.fire({
         icon: "Feild Error",
         title: "Feild Error",
@@ -234,25 +234,12 @@ const CardView = () => {
             toggleModal(); // Close modal after form submission
           }}
         >
-          <span style={{ fontWeight: "bold", fontSize: 18 }}>{values?.name}</span>
+          <span style={{ fontWeight: "bold", fontSize: 18 }}>J’envoi mes coordonnées à {values?.name}</span>
 
           <div style={{ height: 30 }} />
-          <span style={{ fontWeight: "bold", fontSize: 18 }}>Prénom</span>
+          <span style={{ fontWeight: "bold", fontSize: 18 }}>Nom et prénom</span>
           <Input
             onChange={(e) => setFirstName(e.target.value)}
-            style={{
-              border: "none",
-              borderBottom: "2px solid green",
-              outline: "none",
-              boxShadow: "none",
-              borderRadius: 0,
-            }}
-          />
-
-          <div style={{ height: 30 }} />
-          <span style={{ fontWeight: "bold", fontSize: 18 }}>Nom</span>
-          <Input
-            onChange={(e) => setSurname(e.target.value)}
             style={{
               border: "none",
               borderBottom: "2px solid green",
@@ -302,12 +289,12 @@ const CardView = () => {
           <Checkbox onChange={(e) => setCheckboxChecked(e.target.checked)} style={{ marginTop: 10 }} />
           <Link
             to={"https://wefast.fr/politique-de-protection-des-donnees/"}
-            style={{ fontWeight: "bold", fontSize: 10, marginLeft: 5 }}
+            style={{ fontWeight: "bold", fontSize: 10, marginLeft: 5, color: "#008037" }}
             target="_blank"
             rel="noopener noreferrer"
           >
-            Je reconnais transmettre mes informations dans le cadre d’un échange de contact. Consultez notre politique
-            de confidentialité. Link to the WE FAST privacy policy
+            Je reconnais transmettre mes informations dans le cadre d’un échange de contact. Consultez notre <span style={{textDecoration:"underline"}}>politique
+            de confidentialité.</span> 
           </Link>
 
           <Form.Item style={{ display: "flex", justifyContent: "flex-end" }}>
@@ -317,7 +304,7 @@ const CardView = () => {
               type="primary"
               htmlType="submit"
             >
-              Enyoyer
+              Envoyer
             </Button>
           </Form.Item>
           <img src="/Logo WE FAST sans fond.png" alt="" style={{ height: 70 }} />

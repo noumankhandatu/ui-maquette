@@ -50,7 +50,7 @@ function Header({ placement, name, subName, onPress, handleSidenavColor, handleS
         {setting}
       </div> */}
       <Row gutter={[24, 0]}>
-        <Col span={24} md={6}>
+        {/* <Col span={24} md={6}>
           <Breadcrumb>
             <Breadcrumb.Item key={"/"}>
               <NavLink to="/">Pages</NavLink>
@@ -64,7 +64,7 @@ function Header({ placement, name, subName, onPress, handleSidenavColor, handleS
               {subName.replace("/", "")}
             </span>
           </div>
-        </Col>
+        </Col> */}
 
         <Col span={24} md={18} className="header-control">
           <Button type="link" className="sidebar-toggler" onClick={() => onPress()}>

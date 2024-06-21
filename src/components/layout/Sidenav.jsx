@@ -51,7 +51,7 @@ function Sidenav({ color }) {
             <span
               className="icon"
               style={{
-                backgroundColor:"white"
+                backgroundColor:"transparent"
               }}
             >
                <img src="/Icon Contacts.png" alt="" />

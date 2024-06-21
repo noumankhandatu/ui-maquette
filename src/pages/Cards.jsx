@@ -4,6 +4,9 @@ import { FileAddOutlined } from "@ant-design/icons";
 import { NavLink } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Swal from "sweetalert2";
+import moment from 'moment';
+import 'moment/locale/fr'; // Import French locale
+moment.locale('fr');
 
 // Images
 import { useEffect, useState } from "react";
@@ -38,6 +41,11 @@ const columns = [
     title: "DATE DE CRÉATION",
     key: "created_at",
     dataIndex: "created_at",
+    render: (text) => {
+
+      // Format the date using moment.js in French locale
+      return moment(text).format('LL');
+    },
   },
   {
     title: "Action",
