@@ -10,9 +10,10 @@ import {
 } from "@ant-design/icons";
 import { Table, Input, Button, Typography, Checkbox, Space, Layout, Tooltip, Row, Col, Menu } from "antd";
 import QRCode from "react-qr-code";
-import { apiGet } from "../utils/axios";
-import { Link } from "react-router-dom";
-
+import { apiGet } from "../utils/axios"; // Adjusted to import apiGet only
+import moment from "moment";
+import "moment/locale/fr"; // Import French locale
+moment.locale("fr");
 const { Title, Text } = Typography;
 const { Header, Content, Sider } = Layout;
 
@@ -56,9 +57,9 @@ const columns = [
     render: (text) => (
       <Button
         type="link"
+        style={{ color: "#008037" }}
         icon={<PhoneOutlined />}
         onClick={() => (window.location.href = `tel:${text}`)}
-        style={{ color: "green" }}
       >
         {text}
       </Button>
@@ -70,10 +71,10 @@ const columns = [
     key: "emailAddress",
     render: (text) => (
       <Button
+        style={{ color: "#008037" }}
         type="link"
         icon={<MailOutlined />}
         onClick={() => (window.location.href = `mailto:${text}`)}
-        style={{ color: "green" }}
       >
         {text}
       </Button>
@@ -97,20 +98,6 @@ const columns = [
       <Space size="middle">
         <Tooltip title="QR Code">
           <QRCode value={record.emailAddress} size={32} />
-        </Tooltip>
-        <Tooltip title="Add Note">
-          <Button
-            type="link"
-            icon={<EditOutlined style={{ color: "black" }} />}
-            onClick={() => handleAddNote(record.key)}
-          />
-        </Tooltip>
-        <Tooltip title="Download vCard">
-          <Button
-            type="link"
-            icon={<DownloadOutlined style={{ color: "black" }} />}
-            onClick={() => handleDownloadVCard(record)}
-          />
         </Tooltip>
       </Space>
     ),
@@ -138,7 +125,7 @@ const MyContact = () => {
           phoneNumber: contact.phoneNumber,
           emailAddress: contact.emailAddress,
           enterprise: contact.enterprise,
-          date: contact.date, // Assuming you have a date field
+          date: moment(contact.created_at).format("LL"), // Assuming you have a date field
           notes: contact.notes, // Assuming you have a notes field
         }));
         setContacts(formattedContacts);
@@ -200,70 +187,59 @@ const MyContact = () => {
 
   return (
     <Layout>
-      <Layout className="site-layout">
-        <Header
-          className="site-layout-background flex"
-          style={{ padding: 10, display: "flex", justifyContent: "space-between", marginBottom: 30 }}
-        >
-          <Menu style={{ backgroundColor: "#fafafa", border: "1px solid transparent" }}>
-            <Menu.Item style={{ border: "2px solid #008037", borderRadius: 10 }} icon={<HomeOutlined />}>
-              <Link to="/">Home</Link>
-            </Menu.Item>
-          </Menu>
-          <Title level={2} style={{ color: "#008037", textAlign: "center" }}>
-            Mes Contacts
-          </Title>
-          <div />
-        </Header>
-        <Content style={{ padding: "24px" }}>
-          <Row justify="space-between" align="middle">
-            <Col>
-              <Input
-                suffix={<SearchOutlined style={{ fontSize: 22 }} />}
-                placeholder="Barre de recherche pour trouver une personne dans votre base de données"
-                style={{ width: 400, borderRadius: 100 }}
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-              />
-            </Col>
-            <Col>
-              <Text>Aucun contact trouvé dans la base de données</Text>
-            </Col>
-          </Row>
-          <Row justify="space-between" align="middle" style={{ margin: "16px 0" }}>
-            <Col>
-              <Checkbox
-                onChange={(e) => {
-                  if (e.target.checked) {
-                    setSelectedRowKeys(filteredData.map((item) => item.key));
-                  } else {
-                    setSelectedRowKeys([]);
-                  }
-                }}
-                checked={selectedRowKeys.length === filteredData.length}
-              >
-                Tout sélectionner
-              </Checkbox>
-            </Col>
-            <Col>
-              <Button icon={<ExportOutlined />} onClick={handleExportAll}>
-                Exporter Tout
-              </Button>
-              <Button icon={<ExportOutlined />} onClick={handleExportSelected}>
-                Exporter Sélectionné
-              </Button>
-            </Col>
-          </Row>
-          <Table
-            rowSelection={rowSelection}
-            columns={columns}
-            dataSource={filteredData}
-            pagination={{ pageSize: 10 }}
-            loading={loading}
-            scroll={{ x: "max-content" }}
-          />
-        </Content>
-      </Layout>
+      <Header style={{ background: "#FAFAFA", paddingTop: 20, height: 90 }}>
+        <Title level={2} style={{ color: "#008037", textAlign: "center" }}>
+          Mes Contacts
+        </Title>
+      </Header>
+      <Content style={{ padding: "24px" }}>
+        <Row justify="space-between" align="middle">
+          <Col>
+            <Input
+              suffix={<SearchOutlined style={{ fontSize: 22 }} />}
+              placeholder="Search bar to find a person in your database (by surname, first name or company)"
+              style={{ width: 400, borderRadius: 100 }}
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+            />
+          </Col>
+          {/* <Col>
+            <Text>{filteredData.length} contacts found in the database</Text>
+          </Col> */}
+        </Row>
+        <Row justify="space-between" align="middle" style={{ margin: "16px 0" }}>
+          <Col>
+            <Checkbox
+              onChange={(e) => {
+                if (e.target.checked) {
+                  setSelectedRowKeys(filteredData.map((item) => item.key));
+                } else {
+                  setSelectedRowKeys([]);
+                }
+              }}
+              checked={selectedRowKeys.length === filteredData.length}
+            >
+              Tout selectionner
+            </Checkbox>
+          </Col>
+          <Col>
+            <Button icon={<ExportOutlined />} onClick={handleExportAll}>
+              Export All
+            </Button>
+            <Button icon={<ExportOutlined />} onClick={handleExportSelected}>
+              Export Selected
+            </Button>
+          </Col>
+        </Row>
+        <Table
+          rowSelection={rowSelection}
+          columns={columns}
+          dataSource={filteredData}
+          pagination={{ pageSize: 10 }}
+          loading={loading}
+          scroll={{ x: "max-content" }}
+        />
+      </Content>
     </Layout>
   );
 };
