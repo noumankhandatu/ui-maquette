@@ -40,12 +40,7 @@ const columns = [
   {
     title: "DATE DE CRÉATION",
     key: "created_at",
-    dataIndex: "created_at",
-    render: (text) => {
-
-      // Format the date using moment.js in French locale
-      return moment(text).format('LL');
-    },
+    dataIndex: "created_at"
   },
   {
     title: "Action",
@@ -169,7 +164,11 @@ function Cards() {
                 <Title level={5}>{card.view_count}</Title>
               </div>
             ),
-            created_at: <>{new Date(card.created_at).toGMTString()}</>,
+            created_at: `${new Intl.DateTimeFormat('fr-FR', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            }).format(new Date(card.created_at))}`,
             id: (
               <div className="ant-employed" style={{ gap: "10px" }}>
                 <NavLink to={`/dashboard/cards/new/${card.id}`}>Éditer</NavLink>

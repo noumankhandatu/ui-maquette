@@ -204,7 +204,7 @@ const CardView = () => {
         Swal.fire({
           icon: "success",
           title: "Success",
-          text: "Contact information submitted successfully!",
+          text: `${values?.name} a bien reçu vos coordonnées!`,
         });
       } else {
         Swal.fire({

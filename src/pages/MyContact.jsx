@@ -60,7 +60,7 @@ const MyContact = () => {
             phoneNumber: contact.phoneNumber,
             emailAddress: contact.emailAddress,
             enterprise: contact.enterprise,
-            date: moment(contact.created_at).format("LL"), // Assuming you have a date field
+            date: moment().locale('fr').format('LL'),
             notes: storedNote || contact.notes, // Use stored note if available
           };
         });
@@ -207,6 +207,14 @@ const MyContact = () => {
       title: "Rencontre",
       dataIndex: "date",
       key: "date",
+      render: (text) => {
+        let date = new Date(text);
+        return new Intl.DateTimeFormat('fr-FR', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        }).format(date);
+      }
     },
     {
       title: "Notes",
@@ -233,10 +241,10 @@ const MyContact = () => {
       render: (_, record) => (
         <Space size="middle">
           <Tooltip title="Download VCF">
-            <DownloadOutlined style={{ fontSize: 20 }} onClick={() => handleDownloadVCF(record)} />
+            <DownloadOutlined size={70} style={{ fontSize: 80, background:"#008037", color:"white",paddingBlock:"10" }} onClick={() => handleDownloadVCF(record)} />
           </Tooltip>
           <Tooltip title="QR Code">
-            <QRCode style={{ fontSize: 20 }} value={record.emailAddress} size={30} />
+            <QRCode style={{ fontSize: 20 }} value={record.emailAddress} size={70} />
           </Tooltip>
         </Space>
       ),
@@ -262,7 +270,7 @@ const MyContact = () => {
           >
             <HomeOutlined className="text-black" style={{ fontSize: 15, color: "black" }} />
             <span className="text-black" style={{ marginLeft: 10, color: "black" }}>
-              Home
+            Accueil
             </span>
           </Link>
           <Title level={2} style={{ color: "#008037", textAlign: "center" }}>

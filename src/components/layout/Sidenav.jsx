@@ -1,5 +1,5 @@
 import { Menu } from "antd";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, Link} from "react-router-dom";
 // import logo from "../../assets/images/logo.png";
 import { useSelector } from "react-redux";
 
@@ -58,6 +58,8 @@ function Sidenav({ color }) {
             </span>
             <span className="label">Contacts</span>
           </NavLink>
+
+         
         </Menu.Item>
         {user.role === "admin" && (
           <Menu.Item key="2">
@@ -73,7 +75,32 @@ function Sidenav({ color }) {
               <span className="label">Sous-comptes</span>
             </NavLink>
           </Menu.Item>
-        )}
+        )},
+
+<Menu.Item key="3">
+<Link
+
+            to={"https://wefast.fr/politique-de-protection-des-donnees/"}
+            style={{
+              fontWeight: "bold",
+              fontSize: 10,
+              marginLeft: 5,
+              marginTop:30,
+              color: "#fff", // White text color
+              backgroundColor: "#008037", // Green background color
+              padding: "8px 12px", // Optional: Adjust padding as needed
+              borderRadius: 20, // Border radius
+              textDecoration: "none", // Remove underline from link
+              display: "inline-block", // Ensures block-level behavior
+            }}
+                        target="_blank"
+            rel="noopener noreferrer"
+          >
+            Commander a nouveau
+          </Link>
+
+</Menu.Item>
+
       </Menu>
     </>
   );
