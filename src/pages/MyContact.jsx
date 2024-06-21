@@ -8,6 +8,28 @@ import 'moment/locale/fr'; // Import French locale
 moment.locale('fr');
 const { Title, Text } = Typography;
 const { Header, Content } = Layout;
+import VCard from "vcard-creator";
+
+const handleDownloadVCF = (record) => {
+  let [firstname, ...lastname] = record.firstName.split(" ");
+  const myVCard = new VCard();
+  myVCard
+    // add personal data
+    // .addName(values.name)
+    .addName(lastname.toString().replaceAll(",", ""), firstname, "", "", "")
+    // add work data
+    .addCompany(record.enterprise)
+    .addEmail(record.emailAddress)
+    .addPhoneNumber(record.phoneNumber, "PREF;WORK")
+    .addPhoneNumber(record.phoneNumber ?? "", "WORK")
+
+  const element = document.createElement("a");
+  const file = new Blob([myVCard.toString()], { type: "text/plain;charset=utf-8" });
+  element.href = URL.createObjectURL(file);
+  element.download = `${record.firstName}.vcf`;
+  document.body.appendChild(element);
+  element.click();
+};
 
 const columns = [
   {
@@ -57,6 +79,16 @@ const columns = [
     key: "action",
     render: (_, record) => (
       <Space size="middle">
+ <Button
+        type="primary"
+        shape="round"
+        icon={<DownloadOutlined />}
+        size={"small"}
+        style={{ background: "#008037" }}
+        onClick={() => handleDownloadVCF(record)}
+      >
+     
+      </Button>
         <Tooltip title="QR Code">
           <QRCode value={record.emailAddress} size={32} />
         </Tooltip>

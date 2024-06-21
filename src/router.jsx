@@ -31,7 +31,7 @@ export default function Router() {
         <Route path="/log-out" element={<Authenticate />} />
 
         <Route path="/cards/view" element={<CardView />} />
-        <Route path="/my-contact" element={<MyContact />} />
+        <Route path="/Mes-contacts" element={<MyContact />} />
 
         <Route path="/dashboard" element={<Authorized />}>
           <Route path="cards">

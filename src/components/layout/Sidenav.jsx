@@ -47,7 +47,7 @@ function Sidenav({ color }) {
             <span className="label">Cartes</span>
           </NavLink>
 
-          <NavLink to="/my-contact">
+          <NavLink to="/Mes-contacts">
             <span
               className="icon"
               style={{
