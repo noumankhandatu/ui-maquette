@@ -1,11 +1,41 @@
 import React, { useEffect, useState } from "react";
-import { SearchOutlined, DownloadOutlined, PhoneOutlined, MailOutlined, ExportOutlined } from "@ant-design/icons";
-import { Table, Input, Button, Typography, Checkbox, Space, Layout, Tooltip, Row, Col } from "antd";
+import {
+  SearchOutlined,
+  DownloadOutlined,
+  PhoneOutlined,
+  MailOutlined,
+  ExportOutlined,
+  HomeOutlined,
+  EditOutlined,
+} from "@ant-design/icons";
+import { Table, Input, Button, Typography, Checkbox, Space, Layout, Tooltip, Row, Col, Menu } from "antd";
 import QRCode from "react-qr-code";
-import { apiGet } from "../utils/axios"; // Adjusted to import apiGet only
+import { apiGet } from "../utils/axios";
+import { Link } from "react-router-dom";
 
 const { Title, Text } = Typography;
-const { Header, Content } = Layout;
+const { Header, Content, Sider } = Layout;
+
+const handleDownloadVCard = (record) => {
+  const vCardData = `
+  BEGIN:VCARD
+  VERSION:3.0
+  FN:${record.firstName}
+  TEL:${record.phoneNumber}
+  EMAIL:${record.emailAddress}
+  ORG:${record.enterprise}
+  NOTE:${record.notes}
+  END:VCARD
+  `;
+  const blob = new Blob([vCardData], { type: "text/vcard" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", `${record.firstName}.vcf`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
 
 const columns = [
   {
@@ -24,7 +54,12 @@ const columns = [
     dataIndex: "phoneNumber",
     key: "phoneNumber",
     render: (text) => (
-      <Button type="link" icon={<PhoneOutlined />} onClick={() => (window.location.href = `tel:${text}`)}>
+      <Button
+        type="link"
+        icon={<PhoneOutlined />}
+        onClick={() => (window.location.href = `tel:${text}`)}
+        style={{ color: "green" }}
+      >
         {text}
       </Button>
     ),
@@ -34,33 +69,52 @@ const columns = [
     dataIndex: "emailAddress",
     key: "emailAddress",
     render: (text) => (
-      <Button type="link" icon={<MailOutlined />} onClick={() => (window.location.href = `mailto:${text}`)}>
+      <Button
+        type="link"
+        icon={<MailOutlined />}
+        onClick={() => (window.location.href = `mailto:${text}`)}
+        style={{ color: "green" }}
+      >
         {text}
       </Button>
     ),
   },
-  // {
-  //   title: "Rencontre",
-  //   dataIndex: "date",
-  //   key: "date",
-  // },
-  // {
-  //   title: "Notes",
-  //   dataIndex: "notes",
-  //   key: "notes",
-  //   render: (text) => <Text>{text}</Text>,
-  // },
-  // {
-  //   title: "Ajouter",
-  //   key: "action",
-  //   render: (_, record) => (
-  //     <Space size="middle">
-  //       <Tooltip title="QR Code">
-  //         <QRCode value={record.emailAddress} size={32} />
-  //       </Tooltip>
-  //     </Space>
-  //   ),
-  // },
+  {
+    title: "Rencontre",
+    dataIndex: "date",
+    key: "date",
+  },
+  {
+    title: "Notes",
+    dataIndex: "notes",
+    key: "notes",
+    render: (text) => <Text>{text}</Text>,
+  },
+  {
+    title: "Ajouter",
+    key: "action",
+    render: (_, record) => (
+      <Space size="middle">
+        <Tooltip title="QR Code">
+          <QRCode value={record.emailAddress} size={32} />
+        </Tooltip>
+        <Tooltip title="Add Note">
+          <Button
+            type="link"
+            icon={<EditOutlined style={{ color: "black" }} />}
+            onClick={() => handleAddNote(record.key)}
+          />
+        </Tooltip>
+        <Tooltip title="Download vCard">
+          <Button
+            type="link"
+            icon={<DownloadOutlined style={{ color: "black" }} />}
+            onClick={() => handleDownloadVCard(record)}
+          />
+        </Tooltip>
+      </Space>
+    ),
+  },
 ];
 
 const MyContact = () => {
@@ -68,6 +122,7 @@ const MyContact = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [loading, setLoading] = useState(true);
+  const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
     fetchContacts();
@@ -137,61 +192,78 @@ const MyContact = () => {
     link.click();
   };
 
+  const handleAddNote = (key) => {
+    // Implement logic to add a note for a contact
+    console.log("Adding note for contact with key:", key);
+    // Example: Open a modal or input field to add a note
+  };
+
   return (
     <Layout>
-      <Header style={{ background: "#FAFAFA", paddingTop: 20, height: 90 }}>
-        <Title level={2} style={{ color: "#008037", textAlign: "center" }}>
-          My contact page
-        </Title>
-      </Header>
-      <Content style={{ padding: "24px" }}>
-        <Row justify="space-between" align="middle">
-          <Col>
-            <Input
-              suffix={<SearchOutlined style={{ fontSize: 22 }} />}
-              placeholder="Search bar to find a person in your database"
-              style={{ width: 400, borderRadius: 100 }}
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-            />
-          </Col>
-          <Col>
-            <Text>{filteredData.length} contacts found in the database</Text>
-          </Col>
-        </Row>
-        <Row justify="space-between" align="middle" style={{ margin: "16px 0" }}>
-          <Col>
-            <Checkbox
-              onChange={(e) => {
-                if (e.target.checked) {
-                  setSelectedRowKeys(filteredData.map((item) => item.key));
-                } else {
-                  setSelectedRowKeys([]);
-                }
-              }}
-              checked={selectedRowKeys.length === filteredData.length}
-            >
-              Select all
-            </Checkbox>
-          </Col>
-          <Col>
-            <Button icon={<ExportOutlined />} onClick={handleExportAll}>
-              Export All
-            </Button>
-            <Button icon={<ExportOutlined />} onClick={handleExportSelected}>
-              Export Selected
-            </Button>
-          </Col>
-        </Row>
-        <Table
-          rowSelection={rowSelection}
-          columns={columns}
-          dataSource={filteredData}
-          pagination={{ pageSize: 10 }}
-          loading={loading}
-          scroll={{ x: "max-content" }}
-        />
-      </Content>
+      <Layout className="site-layout">
+        <Header
+          className="site-layout-background flex"
+          style={{ padding: 10, display: "flex", justifyContent: "space-between", marginBottom: 30 }}
+        >
+          <Menu style={{ backgroundColor: "#fafafa", border: "1px solid transparent" }}>
+            <Menu.Item style={{ border: "2px solid #008037", borderRadius: 10 }} icon={<HomeOutlined />}>
+              <Link to="/">Home</Link>
+            </Menu.Item>
+          </Menu>
+          <Title level={2} style={{ color: "#008037", textAlign: "center" }}>
+            Mes Contacts
+          </Title>
+          <div />
+        </Header>
+        <Content style={{ padding: "24px" }}>
+          <Row justify="space-between" align="middle">
+            <Col>
+              <Input
+                suffix={<SearchOutlined style={{ fontSize: 22 }} />}
+                placeholder="Barre de recherche pour trouver une personne dans votre base de données"
+                style={{ width: 400, borderRadius: 100 }}
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+              />
+            </Col>
+            <Col>
+              <Text>Aucun contact trouvé dans la base de données</Text>
+            </Col>
+          </Row>
+          <Row justify="space-between" align="middle" style={{ margin: "16px 0" }}>
+            <Col>
+              <Checkbox
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setSelectedRowKeys(filteredData.map((item) => item.key));
+                  } else {
+                    setSelectedRowKeys([]);
+                  }
+                }}
+                checked={selectedRowKeys.length === filteredData.length}
+              >
+                Tout sélectionner
+              </Checkbox>
+            </Col>
+            <Col>
+              <Button icon={<ExportOutlined />} onClick={handleExportAll}>
+                Exporter Tout
+              </Button>
+              <Button icon={<ExportOutlined />} onClick={handleExportSelected}>
+                Exporter Sélectionné
+              </Button>
+            </Col>
+          </Row>
+          <Table
+            rowSelection={rowSelection}
+            columns={columns}
+            dataSource={filteredData}
+            pagination={{ pageSize: 10 }}
+            loading={loading}
+            scroll={{ x: "max-content" }}
+          />
+        </Content>
+      </Layout>
     </Layout>
   );
 };
