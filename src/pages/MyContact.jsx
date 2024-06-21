@@ -6,10 +6,24 @@ import {
   MailOutlined,
   ExportOutlined,
   HomeOutlined,
-  EditOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
-import { Table, Input, Button, Typography, Checkbox, Space, Layout, Tooltip, Row, Col, Menu } from "antd";
+import {
+  Table,
+  Input,
+  Button,
+  Typography,
+  Checkbox,
+  Space,
+  Layout,
+  Tooltip,
+  Row,
+  Col,
+  Modal,
+  Form,
+  Input as AntdInput,
+  message,
+} from "antd";
 import QRCode from "react-qr-code";
 import { apiGet } from "../utils/axios"; // Adjusted to import apiGet only
 import moment from "moment";
@@ -20,109 +34,14 @@ const { Header, Content } = Layout;
 import VCard from "vcard-creator";
 import { Link } from "react-router-dom";
 
-const handleDownloadVCF = (record) => {
-  let [firstname, ...lastname] = record.firstName.split(" ");
-  const myVCard = new VCard();
-  myVCard
-    // add personal data
-    // .addName(values.name)
-    .addName(lastname.toString().replaceAll(",", ""), firstname, "", "", "")
-    // add work data
-    .addCompany(record.enterprise)
-    .addEmail(record.emailAddress)
-    .addPhoneNumber(record.phoneNumber, "PREF;WORK")
-    .addPhoneNumber(record.phoneNumber ?? "", "WORK");
-
-  const element = document.createElement("a");
-  const file = new Blob([myVCard.toString()], { type: "text/plain;charset=utf-8" });
-  element.href = URL.createObjectURL(file);
-  element.download = `${record.firstName}.vcf`;
-  document.body.appendChild(element);
-  element.click();
-};
-
-const columns = [
-  {
-    title: "Contact",
-    dataIndex: "firstName",
-    key: "firstName",
-    render: (text) => <Text>{text}</Text>,
-  },
-  {
-    title: "Entreprise",
-    dataIndex: "enterprise",
-    key: "enterprise",
-  },
-  {
-    title: "Téléphone",
-    dataIndex: "phoneNumber",
-    key: "phoneNumber",
-    render: (text) => (
-      <Button
-        type="link"
-        style={{ color: "#008037" }}
-        icon={<PhoneOutlined />}
-        onClick={() => (window.location.href = `tel:${text}`)}
-      >
-        {text}
-      </Button>
-    ),
-  },
-  {
-    title: "Email",
-    dataIndex: "emailAddress",
-    key: "emailAddress",
-    render: (text) => (
-      <Button
-        style={{ color: "#008037" }}
-        type="link"
-        icon={<MailOutlined />}
-        onClick={() => (window.location.href = `mailto:${text}`)}
-      >
-        {text}
-      </Button>
-    ),
-  },
-  {
-    title: "Rencontre",
-    dataIndex: "date",
-    key: "date",
-  },
-  {
-    title: "Notes",
-    dataIndex: "notes",
-    key: "notes",
-    render: (text) => <Text>{text}</Text>,
-  },
-  {
-    title: "Ajouter",
-    key: "action",
-    render: (_, record) => (
-      <Space size="middle">
-        {/* <Button type="primary" shape="round" icon={<DownloadOutlined />} size={"small"}></Button> */}
-        <Tooltip title="Download VCF">
-          <DownloadOutlined
-            style={{ fontSize: 20 }}
-            onClick={() => handleDownloadVCF(record)}
-            value={record.emailAddress}
-          />
-        </Tooltip>
-        <Tooltip title="Add Note">
-          <PlusOutlined style={{ fontSize: 20 }} value={record.emailAddress} />
-        </Tooltip>
-        <Tooltip title="QR Code">
-          <QRCode style={{ fontSize: 20 }} value={record.emailAddress} size={30} />
-        </Tooltip>
-      </Space>
-    ),
-  },
-];
-
 const MyContact = () => {
   const [contacts, setContacts] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [loading, setLoading] = useState(true);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [currentContactId, setCurrentContactId] = useState(null);
+  const [note, setNote] = useState("");
   const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
@@ -133,15 +52,18 @@ const MyContact = () => {
     try {
       const response = await apiGet("/auth/my-contacts");
       if (response.success && response.contacts) {
-        const formattedContacts = response.contacts.map((contact) => ({
-          key: contact.id, // Ensure each row has a unique key
-          firstName: contact.firstName,
-          phoneNumber: contact.phoneNumber,
-          emailAddress: contact.emailAddress,
-          enterprise: contact.enterprise,
-          date: moment(contact.created_at).format("LL"), // Assuming you have a date field
-          notes: contact.notes, // Assuming you have a notes field
-        }));
+        const formattedContacts = response.contacts.map((contact) => {
+          const storedNote = localStorage.getItem(`note-${contact.id}`);
+          return {
+            key: contact.id, // Ensure each row has a unique key
+            firstName: contact.firstName,
+            phoneNumber: contact.phoneNumber,
+            emailAddress: contact.emailAddress,
+            enterprise: contact.enterprise,
+            date: moment(contact.created_at).format("LL"), // Assuming you have a date field
+            notes: storedNote || contact.notes, // Use stored note if available
+          };
+        });
         setContacts(formattedContacts);
       } else {
         console.error("Failed to fetch contacts");
@@ -194,10 +116,126 @@ const MyContact = () => {
   };
 
   const handleAddNote = (key) => {
-    // Implement logic to add a note for a contact
-    console.log("Adding note for contact with key:", key);
-    // Example: Open a modal or input field to add a note
+    setCurrentContactId(key);
+    const storedNote = localStorage.getItem(`note-${key}`);
+    setNote(storedNote || "");
+    setIsModalVisible(true);
   };
+
+  const handleOk = () => {
+    if (currentContactId) {
+      localStorage.setItem(`note-${currentContactId}`, note);
+      setContacts((prevContacts) =>
+        prevContacts.map((contact) => (contact.key === currentContactId ? { ...contact, notes: note } : contact)),
+      );
+      message.success("Note added successfully");
+      setIsModalVisible(false);
+      setCurrentContactId(null);
+      setNote("");
+    }
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+    setCurrentContactId(null);
+    setNote("");
+  };
+
+  const handleDownloadVCF = (record) => {
+    let [firstname, ...lastname] = record.firstName.split(" ");
+    const myVCard = new VCard();
+    myVCard
+      // add personal data
+      .addName(lastname.toString().replaceAll(",", ""), firstname, "", "", "")
+      // add work data
+      .addCompany(record.enterprise)
+      .addEmail(record.emailAddress)
+      .addPhoneNumber(record.phoneNumber, "PREF;WORK")
+      .addPhoneNumber(record.phoneNumber ?? "", "WORK");
+
+    const element = document.createElement("a");
+    const file = new Blob([myVCard.toString()], { type: "text/plain;charset=utf-8" });
+    element.href = URL.createObjectURL(file);
+    element.download = `${record.firstName}.vcf`;
+    document.body.appendChild(element);
+    element.click();
+  };
+
+  const columns = [
+    {
+      title: "Contact",
+      dataIndex: "firstName",
+      key: "firstName",
+      render: (text) => <Text>{text}</Text>,
+    },
+    {
+      title: "Entreprise",
+      dataIndex: "enterprise",
+      key: "enterprise",
+    },
+    {
+      title: "Téléphone",
+      dataIndex: "phoneNumber",
+      key: "phoneNumber",
+      render: (text) => (
+        <Button
+          type="link"
+          style={{ color: "#008037" }}
+          icon={<PhoneOutlined />}
+          onClick={() => (window.location.href = `tel:${text}`)}
+        >
+          {text}
+        </Button>
+      ),
+    },
+    {
+      title: "Email",
+      dataIndex: "emailAddress",
+      key: "emailAddress",
+      render: (text) => (
+        <Button
+          style={{ color: "#008037" }}
+          type="link"
+          icon={<MailOutlined />}
+          onClick={() => (window.location.href = `mailto:${text}`)}
+        >
+          {text}
+        </Button>
+      ),
+    },
+    {
+      title: "Rencontre",
+      dataIndex: "date",
+      key: "date",
+    },
+    {
+      title: "Notes",
+      dataIndex: "notes",
+      key: "notes",
+      render: (text) => <Text>{text}</Text>,
+    },
+    {
+      title: "Ajouter",
+      key: "action",
+      render: (_, record) => (
+        <Space size="middle">
+          <Tooltip title="Download VCF">
+            <DownloadOutlined
+              style={{ fontSize: 20 }}
+              onClick={() => handleDownloadVCF(record)}
+              value={record.emailAddress}
+            />
+          </Tooltip>
+          <Tooltip title="Add Note">
+            <PlusOutlined style={{ fontSize: 20 }} onClick={() => handleAddNote(record.key)} />
+          </Tooltip>
+          <Tooltip title="QR Code">
+            <QRCode style={{ fontSize: 20 }} value={record.emailAddress} size={30} />
+          </Tooltip>
+        </Space>
+      ),
+    },
+  ];
 
   return (
     <Layout>
@@ -238,9 +276,6 @@ const MyContact = () => {
               onChange={(e) => setSearchText(e.target.value)}
             />
           </Col>
-          {/* <Col>
-            <Text>{filteredData.length} contacts found in the database</Text>
-          </Col> */}
         </Row>
         <Row justify="space-between" align="middle" style={{ margin: "16px 0" }}>
           <Col>
@@ -254,7 +289,7 @@ const MyContact = () => {
               }}
               checked={selectedRowKeys.length === filteredData.length}
             >
-              Tout selectionner
+              Tout sélectionner
             </Checkbox>
           </Col>
           <Col>
@@ -274,6 +309,15 @@ const MyContact = () => {
           loading={loading}
           scroll={{ x: "max-content" }}
         />
+
+        {/* Modal for adding notes */}
+        <Modal title="Ajouter une note" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
+          <Form layout="vertical">
+            <Form.Item label="Note">
+              <AntdInput.TextArea rows={4} value={note} onChange={(e) => setNote(e.target.value)} />
+            </Form.Item>
+          </Form>
+        </Modal>
       </Content>
     </Layout>
   );
