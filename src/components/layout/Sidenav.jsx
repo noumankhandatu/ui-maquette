@@ -38,12 +38,25 @@ function Sidenav({ color }) {
             <span
               className="icon"
               style={{
-                background: page === "cards" ? color : "",
+               backgroundColor:"white"
               }}
             >
-              {dashboard}
+               <img src="/Icon Carte.png" alt="" />
+
             </span>
             <span className="label">Cartes</span>
+          </NavLink>
+
+          <NavLink to="/my-contact">
+            <span
+              className="icon"
+              style={{
+                backgroundColor:"white"
+              }}
+            >
+               <img src="/Icon Contacts.png" alt="" />
+            </span>
+            <span className="label">Contacts</span>
           </NavLink>
         </Menu.Item>
         {user.role === "admin" && (

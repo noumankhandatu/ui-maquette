@@ -55,6 +55,18 @@ const CardView = () => {
     return myVCard;
   };
 
+  const getUserId = () => {
+    let urlString = window.location.href;
+
+// Use URLSearchParams to parse the query string
+let urlParams = new URLSearchParams(urlString);
+
+// Iterate over all query parameters
+urlParams.forEach((value, key) => {
+  console.log(`${key} = ${value}`);
+});
+  }
+
   const handleDownloadVCF = () => {
     const myVCard = createVCard(values);
     const element = document.createElement("a");
@@ -67,6 +79,7 @@ const CardView = () => {
   };
 
   const getCardData = async () => {
+    // getUserId()
     try {
       setSpinner(true);
       const response = await apiGet(`/card/${window.location.search.substr(1)}`);
@@ -161,10 +174,10 @@ const CardView = () => {
   const [business, setBussiness] = useState("");
   const handleFormSubmit = async (formValues) => {
     const payload = {
-      firstName,
-      surname,
-      phoneNumber,
-      emailAddress,
+      name:firstName,
+      userID:window.location.search.substr(1),
+      phone:phoneNumber,
+      email:emailAddress,
       enterprise: business,
     };
 
@@ -176,6 +189,7 @@ const CardView = () => {
       });
 
     try {
+     console.log('thisi is', window.location.search.substr(1)); 
       const response = await apiPost("/submit-contact", payload);
       if (response.success) {
         Swal.fire({

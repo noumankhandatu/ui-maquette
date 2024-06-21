@@ -119,7 +119,7 @@ const MyContact = () => {
 
   const fetchContacts = async () => {
     try {
-      const response = await apiGet("/my-contacts");
+      const response = await apiGet("/auth/my-contacts");
     } catch (error) {
       console.error("Error fetching contacts:", error);
       setLoading(false);
