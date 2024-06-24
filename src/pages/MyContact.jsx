@@ -34,6 +34,7 @@ import { Link } from "react-router-dom";
 
 const { Title, Text } = Typography;
 const { Header, Content } = Layout;
+const basePath = '/vcf-qr'; // Replace with your base path if different
 
 const MyContact = () => {
   const [contacts, setContacts] = useState([]);
@@ -154,7 +155,7 @@ const MyContact = () => {
       .addPhoneNumber(record.phoneNumber ?? "", "WORK");
 
     const element = document.createElement("a");
-    const file = new Blob([myVCard.toString()], { type: "text/plain;charset=utf-8" });
+    const file = new Blob([myVCard.toString()], { type: "text/vcard;charset=utf-8" });
     element.href = URL.createObjectURL(file);
     element.download = `${record.firstName}.vcf`;
     document.body.appendChild(element);
@@ -238,13 +239,17 @@ const MyContact = () => {
     {
       title: "Actions",
       key: "action",
-      render: (_, record) => (
+      dataIndex:"key",
+      render: (text, record) => (
         <Space size="middle">
           <Tooltip title="Download VCF">
-            <DownloadOutlined size={70} style={{ fontSize: 80, background:"#008037", color:"white",paddingBlock:"10" }} onClick={() => handleDownloadVCF(record)} />
+            <DownloadOutlined size={70} style={{ fontSize: 40, background:"#008037", color:"white",paddingBlock:"10" }} onClick={() => handleDownloadVCF(record)} />
           </Tooltip>
-          <Tooltip title="QR Code">
-            <QRCode style={{ fontSize: 20 }} value={record.emailAddress} size={70} />
+          <Tooltip title="Télécharger le contact">
+            <QRCode style={{ fontSize: 20 }}
+              value={`${window.location.origin}${basePath}?id=${encodeURIComponent(text)}`}
+
+            size={70} />
           </Tooltip>
         </Space>
       ),
@@ -284,7 +289,7 @@ const MyContact = () => {
           <Col>
             <Input
               suffix={<SearchOutlined style={{ fontSize: 22 }} />}
-              placeholder="Search bar to find a person in your database (by surname, first name or company)"
+              placeholder="Rechercher un contact"
               style={{ width: 400, borderRadius: 100 }}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
@@ -308,10 +313,10 @@ const MyContact = () => {
           </Col>
           <Col>
             <Button icon={<ExportOutlined />} onClick={handleExportAll}>
-              Export All
+            Exporter tout
             </Button>
             <Button icon={<ExportOutlined />} onClick={handleExportSelected}>
-              Export Selected
+            Exporter la sélection
             </Button>
           </Col>
         </Row>

@@ -14,6 +14,7 @@ import CreateCardNew from "./pages/CreateCardNew";
 import SubAccountCreate from "./pages/SubAccountCreate";
 import SubAccounts from "./pages/SubAccounts";
 import MyContact from "./pages/MyContact";
+import HandleVCFQR from "./pages/handleVcfQR";
 
 export default function Router() {
   // const user = useSelector((state) => state);
@@ -32,6 +33,7 @@ export default function Router() {
 
         <Route path="/cards/view" element={<CardView />} />
         <Route path="/Mes-contacts" element={<MyContact />} />
+        <Route path="/vcf-qr" element={<HandleVCFQR/>}/>
 
         <Route path="/dashboard" element={<Authorized />}>
           <Route path="cards">

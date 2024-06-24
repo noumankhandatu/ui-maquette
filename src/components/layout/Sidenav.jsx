@@ -75,15 +75,15 @@ function Sidenav({ color }) {
               <span className="label">Sous-comptes</span>
             </NavLink>
           </Menu.Item>
-        )},
+        )}
 
 <Menu.Item key="3">
 <Link
 
-            to={"https://wefast.fr/politique-de-protection-des-donnees/"}
+            to={"https://www.wefast.fr"}
             style={{
               fontWeight: "bold",
-              fontSize: 10,
+              fontSize: 15,
               marginLeft: 5,
               marginTop:30,
               color: "#fff", // White text color
@@ -96,7 +96,7 @@ function Sidenav({ color }) {
                         target="_blank"
             rel="noopener noreferrer"
           >
-            Commander a nouveau
+           Commander à nouveau
           </Link>
 
 </Menu.Item>
